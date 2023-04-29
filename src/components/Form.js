@@ -3,32 +3,22 @@ const Form = () => {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [phone, setPhone] = useState("");
-    const [comments, setComments] = useState("");
-    const [phoneType, setPhoneType] = useState("");
+    const [phoneType, setPhoneType] = useState("Select a phone type...");
+    const [bio, setBio] = useState("");
+    const [affiliation, setAffiliation] = useState("")
+    const [emailCheck, setEmailCheck] = useState()
     const [validationErrors, setValidationErrors] = useState([]);
 
-    useEffect(() => {
-        const errors = [];
-        if (!name) {
-            console.log("error for name");
-            errors.push("Please enter your Name");
-        }
-        if (!email.includes("@")) {
-            errors.push("Please provide a valid Email");
-        }
-
-        // console.log(errors);
-        setValidationErrors((prev) => errors);
-        // console.log(validationErrors);
-    }, [name, email]);
     const onSubmit = (e) => {
         e.preventDefault();
         const contactUsInformation = {
             name,
             email,
             phone,
-            comments,
             phoneType,
+            bio,
+            affiliation,
+            emailCheck,
             submittedOn: new Date()
         };
         console.log(contactUsInformation);
@@ -37,9 +27,33 @@ const Form = () => {
         setName("");
         setEmail("");
         setPhone("");
-        setComments("");
+        setBio("");
         setPhoneType("");
+        setAffiliation("")
+        setEmailCheck();
     };
+    useEffect(() => {
+        const errors = {};
+        if (name.length < 3) {
+            errors.name = "Name must be greater than 3 characters"
+        }
+        if (name.length > 15) {
+            errors.name = "Name must be less than 15 characters"
+        }
+        if (!email.includes("@")) {
+            errors.email = "Must be a valid email address"
+        }
+        if (phone.length < 10) {
+            errors.phone = "Must be a valid phone number"
+        }
+        if (phoneType === "Select a phone type...") {
+            errors.phoneType = "Must select a type of phone number"
+        }
+        if (!affiliation) errors.affiliation = "Must be affiliated with company"
+        if (!bio) errors.bio = "Bio must not be empty"
+        setValidationErrors(errors)
+    }, [name, email, phone, phoneType, affiliation, bio])
+    // console.log(affiliation);
     return (
         <div>
             <h2>Contact Us</h2>
@@ -54,6 +68,7 @@ const Form = () => {
                             setName((prev) => e.target.value);
                         }}
                     />
+                    {validationErrors.name && <p className="errors">{validationErrors.name}</p>}
                 </div>
                 <div>
                     <label htmlFor="email">Email:</label>
@@ -65,6 +80,7 @@ const Form = () => {
                             setEmail((prev) => e.target.value);
                         }}
                     />
+                    {validationErrors.email && <p className="errors">{validationErrors.email}</p>}
                 </div>
                 <div>
                     <label htmlFor="phone">Phone:</label>
@@ -82,30 +98,39 @@ const Form = () => {
                         value={phoneType}
                     >
                         {" "}
-                        <option value="" disabled>
+                        <option value="Select a phone type..." disabled>
                             Select a phone type...
                         </option>
                         <option>Home</option>
                         <option>Work</option>
                         <option>Mobile</option>
                     </select>
+                    {validationErrors.phone && <p className="errors">{validationErrors.phone}</p>}
+                    {validationErrors.phoneType && <p className="errors">{validationErrors.phoneType}</p>}
                 </div>
                 <div>
-                    <input type="radio" name="staff" value="Student"/>
                     <label htmlFor="student">Student</label>
-                    <input type="radio" name="staff" value="Instructor"/>
+                    <input type="radio" name="staff" value="Student" checked={affiliation === "Student"} onChange={() => setAffiliation("Student")} />
                     <label htmlFor="instructor">Instructor</label>
+                    <input type="radio" name="staff" value="Instructor" checked={affiliation === "Instructor"} onChange={() => setAffiliation("Instructor")} />
+                    {validationErrors.affiliation && <p className="errors">{validationErrors.affiliation}</p>}
+
                 </div>
                 <div>
-                    <label htmlFor="comments">Comments:</label>
+                    <label htmlFor="bio">Bio:</label>
                     <textarea
-                        id="comments"
-                        name="comments"
-                        onChange={(e) => setComments(e.target.value)}
-                        value={comments}
+                        id="bio"
+                        name="bio"
+                        onChange={(e) => setBio(e.target.value)}
+                        value={bio}
                     />
+                    {validationErrors.bio && <p className="errors">{validationErrors.bio}</p>}
                 </div>
-                <button>Submit</button>
+                <div>
+                    <label htmlFor="notifications">Sign up for email notifications:</label>
+                    <input type="checkbox" htmlFor="notifications" checked={emailCheck === true} onChange={() => setEmailCheck(!emailCheck)} />
+                </div>
+                <button disabled={Object.keys(validationErrors).length < 1 ? false : true}>Submit</button>
             </form>
         </div>
     );
